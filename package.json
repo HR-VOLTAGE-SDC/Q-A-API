@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "pg": "^8.7.3"
+  },
+  "name": "q-and-a-api",
+  "description": "",
+  "version": "1.0.0",
+  "main": "mongoDB.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HR-VOLTAGE-SDC/Q-and-A-API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HR-VOLTAGE-SDC/Q-and-A-API/issues"
+  },
+  "homepage": "https://github.com/HR-VOLTAGE-SDC/Q-and-A-API#readme"
+}
