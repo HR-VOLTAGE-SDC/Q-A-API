@@ -1,12 +1,15 @@
 {
   "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.15",
     "pg": "^8.7.3"
   },
   "name": "q-and-a-api",
   "description": "",
   "version": "1.0.0",
   "main": "mongoDB.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
