@@ -4,14 +4,16 @@
     "express": "^4.17.3",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.15",
-    "pg": "^8.7.3"
+    "pg": "^8.7.3",
+    "pg-format": "^1.0.4"
   },
   "name": "q-and-a-api",
   "description": "",
   "version": "1.0.0",
   "main": "mongoDB.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node main",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,9 @@
   "bugs": {
     "url": "https://github.com/HR-VOLTAGE-SDC/Q-and-A-API/issues"
   },
-  "homepage": "https://github.com/HR-VOLTAGE-SDC/Q-and-A-API#readme"
+  "homepage": "https://github.com/HR-VOLTAGE-SDC/Q-and-A-API#readme",
+  "devDependencies": {
+    "jest": "^28.0.2",
+    "supertest": "^6.2.3"
+  }
 }

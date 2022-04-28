@@ -1,35 +1,40 @@
 const pool = require("../postgresDBConnection.js");
+const format = require('pg-format');
 
 module.exports = {
     getAllQuestions: (params) => {
+      console.log('whats in params', params)
     const product_id = params.product_id;
+    const count = 5;
+    const page = 1;
+    const offset = (page * count) - count;
     const text = `
-      SELECT JSON_BUILD_OBJECT(
-        'product_id', ${product_id},
-        'result', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
-          'question_id', id,
-          'question_body', question_body,
-          'question_date', question_date,
-          'askerName', asker_name,
-          'question_helpfulness', question_helpfulness,
-          'reported', reported,
-          'asnwer', (SELECT JSON_OBJECT_AGG(Answers.id,
+    SELECT JSON_BUILD_OBJECT(
+      'product_id', ${product_id},
+      'result', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
+        'question_id', id,
+        'question_body', question_body,
+        'question_date', question_date,
+        'askerName', asker_name,
+        'question_helpfulness', question_helpfulness,
+        'reported', reported,
+        'answer',
+        (SELECT JSON_OBJECT_AGG(answers_data.id,
                               JSON_BUILD_OBJECT(
-                                'id', Answers.id,
-                                'body', Answers.body,
-                                'date', Answers.date,
-                                'answer_name', Answers.answerer_name,
-                                'helpfulness', Answers.helpfulness,
-                                'photos', (SELECT COALESCE(ARRAY_AGG(JSON_BUILD_OBJECT(
-                                            'id', Photos.id,
-                                            'url', Photos.url
-                                          ))) FROM Photos WHERE Answers.id = Photos.answer_id)
+                                'id', answers_data.id,
+                                'body', answers_data.body,
+                                'date', answers_data.date,
+                                'answerer_name', answers_data.answerer_name,
+                                'helpfulness', answers_data.helpfulness,
+                                'photos', answers_data.photos
                               )
-            ) AS Answers FROM Answers WHERE Answers.question_id = questions.id)
-          )) FROM Questions WHERE product_id = ${product_id})
-      )
-      `;
-      // check err message "error: argument of AND must be type boolean, not type json[]" when WHERE reported = false
+            ) AS answers FROM answers_data WHERE answers_data.question_id = questions.id)
+        )) FROM Questions WHERE Questions.product_id = ${product_id})
+    )
+    `
+      //  check err message "error: argument of AND must be type boolean, not type json[]" when WHERE reported = false
+      //  pagination and count with OFFSET and COUNT
+      //  INDEX should be applied
     return pool.query(text)
     .catch((err) => console.log(err, 'Err getting questions'))
     },
@@ -50,11 +55,8 @@ module.exports = {
             'date', date,
             'answerer_name', answerer_name,
             'helpfulness', helpfulness,
-            'photos', (SELECT COALESCE(ARRAY_AGG(JSON_BUILD_OBJECT(
-                          'id', Photos.id,
-                          'url', Photos.url
-                      ))) FROM Photos WHERE Answers.id = Photos.answer_id)
-          )) FROM Answers WHERE question_id = ${question_id})
+            'photos', photos
+          )) FROM answers_data WHERE question_id = ${question_id})
         )
       `
       return pool.query(text)
@@ -122,5 +124,104 @@ module.exports = {
     }
 
 }
+
+// drop not using tables before deployment
+
 /*
+      SELECT JSON_BUILD_OBJECT(
+        'product_id', 3,
+        'result', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
+          'question_id', id,
+          'question_body', question_body,
+          'question_date', question_date,
+          'askerName', asker_name,
+          'question_helpfulness', question_helpfulness,
+          'reported', reported,
+          'asnwer', (SELECT JSON_OBJECT_AGG(Answers.id,
+                              JSON_BUILD_OBJECT(
+                                'id', Answers.id,
+                                'body', Answers.body,
+                                'date', Answers.date,
+                                'answer_name', Answers.answerer_name,
+                                'helpfulness', Answers.helpfulness,
+                                'photos', (SELECT COALESCE(ARRAY_AGG(JSON_BUILD_OBJECT(
+                                            'id', Photos.id,
+                                            'url', Photos.url
+                                          ))) FROM Photos WHERE Answers.id = Photos.answer_id)
+                              )
+            ) AS Answers FROM Answers WHERE Answers.question_id = questions.id)
+          )) FROM Questions WHERE product_id = 3)
+      )
+
+      for getAnswer
+              SELECT JSON_BUILD_OBJECT(
+          'question', ${question_id},
+          'page', ${page},
+          'count', ${count},
+          'results', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
+            'answer_id', id,
+            'body', body,
+            'date', date,
+            'answerer_name', answerer_name,
+            'helpfulness', helpfulness,
+            'photos', (SELECT COALESCE(ARRAY_AGG(JSON_BUILD_OBJECT(
+                          'id', Photos.id,
+                          'url', Photos.url
+                      ))) FROM Photos WHERE Answers.id = Photos.answer_id)
+          )) FROM Answers WHERE question_id = ${question_id})
+        )
+
+
+
+*/
+
+/* GETall q with format
+          const text = format(`
+          SELECT JSON_BUILD_OBJECT(
+            'product_id', %s,
+            'result', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
+              'question_id', id,
+              'question_body', question_body,
+              'question_date', question_date,
+              'askerName', asker_name,
+              'question_helpfulness', question_helpfulness,
+              'reported', reported,
+              'answer',
+              (SELECT JSON_OBJECT_AGG(answers_data.id,
+                                    JSON_BUILD_OBJECT(
+                                      'id', answers_data.id,
+                                      'body', answers_data.body,
+                                      'date', answers_data.date,
+                                      'answerer_name', answers_data.answerer_name,
+                                      'helpfulness', answers_data.helpfulness,
+                                      'photos', answers_data.photos
+                                    )
+                  ) AS answers FROM answers_data WHERE answers_data.question_id = questions.id)
+              )) FROM Questions WHERE Questions.product_id = %L LIMIT %L OFFSET %L)
+          )
+        `, product_id, product_id, count, offset);
+
+getall q without
+        SELECT JSON_BUILD_OBJECT(
+          'product_id', ${product_id},
+          'result', (SELECT ARRAY_AGG(JSON_BUILD_OBJECT(
+            'question_id', id,
+            'question_body', question_body,
+            'question_date', question_date,
+            'askerName', asker_name,
+            'question_helpfulness', question_helpfulness,
+            'reported', reported,
+            'answer',
+            (SELECT JSON_OBJECT_AGG(answers_data.id,
+                                  JSON_BUILD_OBJECT(
+                                    'id', answers_data.id,
+                                    'body', answers_data.body,
+                                    'date', answers_data.date,
+                                    'answerer_name', answers_data.answerer_name,
+                                    'helpfulness', answers_data.helpfulness,
+                                    'photos', answers_data.photos
+                                  )
+                ) AS answers FROM answers_data WHERE answers_data.question_id = questions.id)
+            )) FROM Questions WHERE Questions.product_id = ${product_id})
+        )
 */

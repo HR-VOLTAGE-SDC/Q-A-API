@@ -11,8 +11,8 @@ const pool = new Pool ({
 // I would like to check whether it is connected
 const db = pool.connect();
 
-db
-.then(db => console.log('Connected to PSQL'))
-.catch(err => console.log(err, 'Issue connecting to PSQL'))
+// db
+// .then(db => console.log('Connected to PSQL'))
+// .catch(err => console.log(err, 'Issue connecting to PSQL'))
 
 module.exports = pool;
