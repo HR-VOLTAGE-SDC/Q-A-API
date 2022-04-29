@@ -2,7 +2,7 @@ const Pool = require("pg").Pool;
 require('dotenv').config();
 
 const pool = new Pool ({
-  user: process.env.User,
+  user: process.env.UserDB,
   password: process.env.Password,
   database: process.env.Database,
   host: process.env.Host,
