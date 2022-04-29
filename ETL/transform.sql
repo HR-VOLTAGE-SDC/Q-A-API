@@ -12,6 +12,21 @@ Answers.id = photos_data.answer_id ORDER BY Answers.id;
 
 ALTER TABLE answers_data ALTER photos SET DEFAULT '[]';
 
+DROP TABLE IF EXISTS Photos CASCADE;
+DROP TABLE IF EXISTS Answers CASCADE;
+
+-- -- would query time be faster if unix epoch is converted already into to_timestamp when creating table?
+-- -- transforming uniq epoch into to_timestamp
+UPDATE questions SET question_date = question_date/1000;
+ALTER TABLE questions ALTER question_date TYPE TIMESTAMP WITHOUT TIME ZONE USING to_timestamp(question_date) AT TIME ZONE 'UTC';
+
+UPDATE answers SET date = date/1000;
+ALTER TABLE answers ALTER date TYPE TIMESTAMP WITHOUT TIME ZONE USING to_timestamp(date) AT TIME ZONE 'UTC';
+
+-- INDEXing the tables
+CREATE INDEX product_id ON Questions (product_id);
+CREATE INDEX question_id ON answers_data (question_id);
+
 /*
 qna=# ALTER TABLE answers_data ADD PRIMARY KEY (id);
 ALTER TABLE
@@ -53,14 +68,3 @@ qna=# SELECT MAX(id) FROM answers_data;
 (1 row)
 */
 
--- -- would query time be faster if unix epoch is converted already into to_timestamp when creating table?
--- -- transforming uniq epoch into to_timestamp
--- UPDATE questions SET question_date = question_date/1000;
--- ALTER TABLE questions ALTER question_date TYPE TIMESTAMP WITHOUT TIME ZONE USING to_timestamp(question_date) AT TIME ZONE 'UTC';
-
--- UPDATE answers SET date = date/1000;
--- ALTER TABLE answers ALTER date TYPE TIMESTAMP WITHOUT TIME ZONE USING to_timestamp(date) AT TIME ZONE 'UTC';
-
--- -- INDEXing the tables
--- CREATE INDEX product_id ON Questions (product_id);
--- CREATE INDEX question_id ON answers_data (question_id);

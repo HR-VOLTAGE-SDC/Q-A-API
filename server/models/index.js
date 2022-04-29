@@ -29,7 +29,7 @@ module.exports = {
                                 'photos', answers_data.photos
                               )
             ) AS answers FROM answers_data WHERE answers_data.question_id = questions.id)
-        )) FROM Questions WHERE Questions.product_id = ${product_id})
+        )) FROM Questions WHERE Questions.product_id = ${product_id} AND Questions.reported = false)
     )
     `
       //  check err message "error: argument of AND must be type boolean, not type json[]" when WHERE reported = false

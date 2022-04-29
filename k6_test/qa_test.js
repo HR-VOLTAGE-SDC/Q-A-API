@@ -10,7 +10,8 @@ export const options = {
 
 export default () => {
   let id = Math.floor(Math.random()*99999);
-  const url = `http://localhost:3000/qa/questions?product_id=${id}`
+  // const url = `http://localhost:3000/qa/questions?product_id=${id}`
+  const url = `http://localhost:3000/qa/questions/${id}/answers`
   http.get(url);
   sleep(1);
 };
