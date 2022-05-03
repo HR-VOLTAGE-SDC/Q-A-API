@@ -6,6 +6,7 @@ const controllers = require("./controllers");
 const app = express();
 const port = 3000;
 
+
 // middleware
 app.use(express.json()); // => req.body
 app.use(morgan('dev'));
